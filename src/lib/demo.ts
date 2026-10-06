@@ -20,3 +20,10 @@ export async function shouldFail(): Promise<boolean> {
   const cookieStore = await cookies();
   return cookieStore.get("pg-fail")?.value === "1";
 }
+
+/** Read-side failure for the dashboard: lets us demo error boundaries. */
+export async function failReadIfSimulated(): Promise<void> {
+  if (await shouldFail()) {
+    throw new Error("Database tidak dapat dihubungi (simulasi)");
+  }
+}

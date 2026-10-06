@@ -12,10 +12,28 @@ function openDatabase(): Promise<sqlite3.Database> {
   if (!existsSync(DB_PATH)) {
     copyFileSync(SEED_PATH, DB_PATH);
   }
-  return new Promise((resolve, reject) => {
+  return new Promise<sqlite3.Database>((resolve, reject) => {
     const db = new sqlite3.Database(DB_PATH, (err) =>
       err ? reject(err) : resolve(db),
     );
+  }).then(migrate);
+}
+
+// Day 2: orders get a status. Runs once on databases created before that.
+function migrate(db: sqlite3.Database): Promise<sqlite3.Database> {
+  return new Promise((resolve, reject) => {
+    db.all("PRAGMA table_info(orders)", (err, columns: { name: string }[]) => {
+      if (err) return reject(err);
+      if (columns.some((c) => c.name === "status")) return resolve(db);
+      db.exec(
+        `ALTER TABLE orders ADD COLUMN status TEXT NOT NULL DEFAULT 'delivered';
+         UPDATE orders SET status = CASE order_id % 4
+             WHEN 0 THEN 'pending' WHEN 1 THEN 'preparing' WHEN 2 THEN 'ready'
+             ELSE 'delivered' END
+           WHERE date = (SELECT MAX(date) FROM orders);`,
+        (execErr) => (execErr ? reject(execErr) : resolve(db)),
+      );
+    });
   });
 }
 
