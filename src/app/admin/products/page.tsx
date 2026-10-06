@@ -2,13 +2,22 @@ import Link from "next/link";
 import { getProductRows } from "@/lib/admin-data";
 import { formatPrice } from "@/lib/format";
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: PageProps<"/admin/products">) {
+  const { updated } = await searchParams;
   const products = await getProductRows();
+  const updatedProduct = products.find((p) => p.id === updated);
 
   return (
     <section>
       <h1 className="text-3xl font-black">Produk</h1>
       <p className="mt-1 text-ink/70">{products.length} pizza di menu</p>
+      {updatedProduct && (
+        <p role="status" className="mt-4 rounded-xl bg-emerald-100 px-4 py-2 text-emerald-900">
+          Harga {updatedProduct.name} diperbarui. Menu pelanggan sudah ikut berubah.
+        </p>
+      )}
       <table className="mt-6 w-full overflow-hidden rounded-xl bg-white text-left text-sm shadow-sm">
         <thead className="bg-stone-50 text-xs uppercase text-ink/60">
           <tr>

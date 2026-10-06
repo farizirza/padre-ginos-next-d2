@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { filterPizzas, formatPrice, lowestPrice, parseStars } from "@/lib/format";
-import type { Pizza } from "@/lib/types";
+import {
+  filterPizzas,
+  formatPrice,
+  lowestPrice,
+  parsePrice,
+  parseStars,
+} from "@/lib/format";
+import type { Pizza } from "@/lib/types"; 
 
 const pizzas: Pizza[] = [
   {
@@ -51,6 +57,19 @@ describe("parseStars", () => {
   test("rejects everything else", () => {
     for (const bad of [0, 6, 2.5, "abc", null, undefined, "", []]) {
       expect(parseStars(bad)).toBeNull();
+    }
+  });
+});
+
+describe("parsePrice", () => {
+  test("accepts dollars with up to 2 decimals", () => {
+    expect(parsePrice("12.5")).toBe(12.5);
+    expect(parsePrice(" 13.00 ")).toBe(13);
+    expect(parsePrice("9")).toBe(9);
+  });
+  test("rejects everything else", () => {
+    for (const bad of ["", "abc", "0", "-1", "12.345", "1e2", "101", 12, null]) {
+      expect(parsePrice(bad)).toBeNull();
     }
   });
 });

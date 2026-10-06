@@ -35,3 +35,12 @@ export function parseStars(value: unknown): number | null {
   if (typeof n !== "number" || !Number.isInteger(n)) return null;
   return n >= 1 && n <= 5 ? n : null;
 }
+
+/** A price in dollars: 0.01–100 with at most 2 decimals, or null. */
+export function parsePrice(value: unknown): number | null {
+  if (typeof value !== "string" || !/^\d+(\.\d{1,2})?$/.test(value.trim())) {
+    return null;
+  }
+  const n = Number(value);
+  return n >= 0.01 && n <= 100 ? n : null;
+}
